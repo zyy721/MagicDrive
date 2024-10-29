@@ -294,8 +294,12 @@ class MultiviewRunner(BaseRunner):
                 batch
                 ["uncond_ids"])[0]
 
-            controlnet_image = batch["bev_map_with_aux"].to(
-                dtype=self.weight_dtype)
+            # controlnet_image = batch["bev_map_with_aux"].to(
+            #     dtype=self.weight_dtype)
+
+            controlnet_image = torch.load('/home/yzhu/BEV_Diffusion/extracted_bev_feature.pth')
+            controlnet_image = controlnet_image.to(device=latents.device, dtype=self.weight_dtype)
+            controlnet_image = controlnet_image.expand([bsz, -1, -1, -1])
 
             model_pred = self.controlnet_unet(
                 noisy_latents, timesteps, camera_param, encoder_hidden_states,

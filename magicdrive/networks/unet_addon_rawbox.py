@@ -169,21 +169,25 @@ class BEVControlNetModel(ModelMixin, ConfigMixin):
             self.class_embedding = None
 
         # control net conditioning embedding
-        if map_embedder_cls is None:
-            cond_embedder_cls = BEVControlNetConditioningEmbedding
-            embedder_param = {
-                "conditioning_size": map_size,
-                "block_out_channels": conditioning_embedding_out_channels,
-            }
-        else:
-            cond_embedder_cls = load_module(map_embedder_cls)
-            embedder_param = map_embedder_param
-        self.controlnet_cond_embedding = cond_embedder_cls(
-            conditioning_embedding_channels=block_out_channels[0],
-            **embedder_param,
+        # if map_embedder_cls is None:
+        #     cond_embedder_cls = BEVControlNetConditioningEmbedding
+        #     embedder_param = {
+        #         "conditioning_size": map_size,
+        #         "block_out_channels": conditioning_embedding_out_channels,
+        #     }
+        # else:
+        #     cond_embedder_cls = load_module(map_embedder_cls)
+        #     embedder_param = map_embedder_param
+        # self.controlnet_cond_embedding = cond_embedder_cls(
+        #     conditioning_embedding_channels=block_out_channels[0],
+        #     **embedder_param,
+        # )
+        self.controlnet_cond_embedding = BEVControlNetConditioningEmbedding(
+            conditioning_embedding_channels=block_out_channels[0]
         )
         logging.debug(
             f"[BEVControlNetModel] map_embedder: {self.controlnet_cond_embedding}")
+
 
         # uncond_map
         if use_uncond_map is not None and drop_cond_ratio > 0:
@@ -846,7 +850,6 @@ class BEVControlNetModel(ModelMixin, ConfigMixin):
         sample = self.conv_in(sample)
 
         controlnet_cond = self.controlnet_cond_embedding(controlnet_cond)
-
         sample += controlnet_cond
 
         # 3. down

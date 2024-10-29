@@ -340,7 +340,8 @@ class BaseRunner:
             f"Starting from epoch {first_epoch} to {self.cfg.runner.num_train_epochs}")
         for epoch in range(first_epoch, self.cfg.runner.num_train_epochs):
             for step, batch in enumerate(self.train_dataloader):
-                loss = self._train_one_stop(batch)
+                loss = self._train_one_stop(batch)  
+
                 if not loss.isfinite():
                     raise RuntimeError('Your loss is NaN.')
                 # Checks if the accelerator has performed an optimization step behind the scenes
@@ -361,6 +362,17 @@ class BaseRunner:
                         )
                         self.accelerator.save_state(save_path)
                         logging.info(f"Saved state to {save_path}")
+
+
+
+                        logging.info(
+                            f"Save at step {global_step}, epoch {epoch}")
+                        sub_dir_name = f"weight-E{epoch}-S{global_step}"
+                        self._save_model(os.path.join(
+                            self.cfg.log_root, sub_dir_name
+                        ))
+
+
 
                 logs = {"loss": loss.detach().item()}
                 for lri, lr in enumerate(self.lr_scheduler.get_last_lr()):
