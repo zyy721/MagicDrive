@@ -91,7 +91,48 @@ input_modality:
   use_map: false
   use_external: false
 
+
+
+# bevdet data config
+# bevdet_data_config:
+#     cams: [
+#         'CAM_FRONT_LEFT', 'CAM_FRONT', 'CAM_FRONT_RIGHT', 'CAM_BACK_LEFT',
+#         'CAM_BACK', 'CAM_BACK_RIGHT'
+#     ]
+#     Ncams: 6
+#     input_size: (256, 704)
+#     src_size: (900, 1600)
+
+#     # Augmentation
+#     resize: (0.0, 0.0)
+#     rot: (0.0, 0.0)
+#     flip: False
+#     crop_h: (0.0, 0.0)
+#     resize_test: 0.00
+
+# bda_aug_conf:
+#   dict(
+#     rot_lim=(0.0, 0.0),
+#     scale_lim=(0.0, 0.0),
+#     flip_dx_ratio=0.0,
+#     flip_dy_ratio=0.0)
+
+
+
 train_pipeline:
+  # -
+  #   type: PrepareImageInputs
+  #   is_train: true
+  #   data_config: ${...bevdet_data_config}
+
+  # -
+  #   type: BEVAug
+  #   bda_aug_conf: ${...bda_aug_conf}
+  #   classes: ${...object_classes}
+
+
+
+
   -
     type: LoadMultiViewImageFromFiles
     to_float32: true
@@ -265,8 +306,8 @@ data:
   val:
     type: ${...dataset_type}
     dataset_root: ${...dataset_root}
-    # ann_file: ${...dataset_process_root}nuscenes_infos_val.pkl
-    ann_file: ${...dataset_process_root}nuscenes_infos_train.pkl
+    ann_file: ${...dataset_process_root}nuscenes_infos_val.pkl
+    # ann_file: ${...dataset_process_root}nuscenes_infos_train.pkl
 
     pipeline: ${...test_pipeline}
     object_classes: ${...object_classes}

@@ -7,6 +7,18 @@ defaults:
 
 dataset:
   train_pipeline:
+    # -
+    #   type: PrepareImageInputs
+    #   is_train: true
+    #   data_config: ${...bevdet_data_config}
+
+    # -
+    #   type: BEVAug
+    #   bda_aug_conf: ${...bda_aug_conf}
+    #   classes: ${...object_classes}
+
+
+
     -
       type: LoadMultiViewImageFromFiles
       to_float32: true

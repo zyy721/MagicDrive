@@ -21,6 +21,12 @@ from ..misc.common import load_module, convert_outputs_to_fp16, move_to
 from .base_runner import BaseRunner
 from .utils import smart_param_count
 
+import numpy as np
+
+
+
+
+
 
 class ControlnetUnetWrapper(ModelMixin):
     """As stated in https://github.com/huggingface/accelerate/issues/668, we
@@ -95,6 +101,10 @@ class ControlnetUnetWrapper(ModelMixin):
 class MultiviewRunner(BaseRunner):
     def __init__(self, cfg, accelerator, train_set, val_set) -> None:
         super().__init__(cfg, accelerator, train_set, val_set)
+
+        # import pickle5 as pickle
+        # with open('/home/yzhu/BEV_Diffusion/train_extracted_bev_feature_5000.pickle', 'rb') as handle:
+        #     self.train_extracted_bev_feature = pickle.load(handle)
 
     def _init_fixed_models(self, cfg):
         # fmt: off
@@ -297,9 +307,16 @@ class MultiviewRunner(BaseRunner):
             # controlnet_image = batch["bev_map_with_aux"].to(
             #     dtype=self.weight_dtype)
 
-            controlnet_image = torch.load('/home/yzhu/BEV_Diffusion/extracted_bev_feature.pth')
+            # controlnet_image = torch.load('/home/yzhu/BEV_Diffusion/extracted_bev_feature.pth')
+            # controlnet_image = controlnet_image.to(device=latents.device, dtype=self.weight_dtype)
+            # controlnet_image = controlnet_image.expand([bsz, -1, -1, -1])
+
+            controlnet_image_list = []
+            for idx_batch in range(bsz):
+                cur_sample_idx = batch['meta_data']['metas'][idx_batch].data['token']
+                controlnet_image_list.append(torch.load(f'./train_extracted_bev_feature/{cur_sample_idx}.bin'))
+            controlnet_image = torch.stack(controlnet_image_list)
             controlnet_image = controlnet_image.to(device=latents.device, dtype=self.weight_dtype)
-            controlnet_image = controlnet_image.expand([bsz, -1, -1, -1])
 
             model_pred = self.controlnet_unet(
                 noisy_latents, timesteps, camera_param, encoder_hidden_states,
