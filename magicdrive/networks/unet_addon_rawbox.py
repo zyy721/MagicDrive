@@ -206,8 +206,8 @@ class BEVControlNetModel(ModelMixin, ConfigMixin):
             self.uncond_map = None
 
         # BEV bbox embedder
-        model_cls = load_module(bbox_embedder_cls)
-        self.bbox_embedder = model_cls(**bbox_embedder_param)
+        # model_cls = load_module(bbox_embedder_cls)
+        # self.bbox_embedder = model_cls(**bbox_embedder_param)
 
         self.down_blocks = nn.ModuleList([])
         self.controlnet_down_blocks = nn.ModuleList([])
@@ -705,8 +705,8 @@ class BEVControlNetModel(ModelMixin, ConfigMixin):
         ], dim=0)
         return encoder_hidden_states_with_cam
 
-    def prepare(self, cfg, **kwargs):
-        self.bbox_embedder.prepare(cfg, **kwargs)
+    # def prepare(self, cfg, **kwargs):
+    #     self.bbox_embedder.prepare(cfg, **kwargs)
 
     def forward(
         self,
@@ -764,37 +764,37 @@ class BEVControlNetModel(ModelMixin, ConfigMixin):
         # 0.5. bbox embeddings
         # bboxes data should follow the format of (B, N_cam or 1, max_len, ...)
         # for each view
-        if bboxes_3d_data is not None:
-            bbox_embedder_kwargs = {}
-            for k, v in bboxes_3d_data.items():
-                bbox_embedder_kwargs[k] = v.clone()
-            if self.drop_cam_with_box and uncond_mask is not None:
-                _, n_box = bboxes_3d_data["bboxes"].shape[:2]
-                if n_box != N_cam:
-                    assert n_box == 1, "either N_cam or 1."
-                    for k in bboxes_3d_data.keys():
-                        ori_v = rearrange(
-                            bbox_embedder_kwargs[k], 'b n ... -> (b n) ...')
-                        new_v = repeat(ori_v, 'b ... -> b n ...', n=N_cam)
-                        bbox_embedder_kwargs[k] = new_v
-                # here we set mask for dropped boxes to all zero
-                masks = bbox_embedder_kwargs['masks']
-                masks[uncond_mask > 0] = 0
-            # original flow
-            b_box, n_box = bbox_embedder_kwargs["bboxes"].shape[:2]
-            for k in bboxes_3d_data.keys():
-                bbox_embedder_kwargs[k] = rearrange(
-                    bbox_embedder_kwargs[k], 'b n ... -> (b n) ...')
-            bbox_emb = self.bbox_embedder(**bbox_embedder_kwargs)
-            if n_box != N_cam:
-                # n_box should be 1: all views share the same set of bboxes, we repeat
-                bbox_emb = repeat(bbox_emb, 'b ... -> b n ...', n=N_cam)
-            else:
-                # each view already has its set of bboxes
-                bbox_emb = rearrange(bbox_emb, '(b n) ... -> b n ...', n=N_cam)
-            encoder_hidden_states_with_cam = torch.cat([
-                encoder_hidden_states_with_cam, bbox_emb
-            ], dim=2)
+        # if bboxes_3d_data is not None:
+        #     bbox_embedder_kwargs = {}
+        #     for k, v in bboxes_3d_data.items():
+        #         bbox_embedder_kwargs[k] = v.clone()
+        #     if self.drop_cam_with_box and uncond_mask is not None:
+        #         _, n_box = bboxes_3d_data["bboxes"].shape[:2]
+        #         if n_box != N_cam:
+        #             assert n_box == 1, "either N_cam or 1."
+        #             for k in bboxes_3d_data.keys():
+        #                 ori_v = rearrange(
+        #                     bbox_embedder_kwargs[k], 'b n ... -> (b n) ...')
+        #                 new_v = repeat(ori_v, 'b ... -> b n ...', n=N_cam)
+        #                 bbox_embedder_kwargs[k] = new_v
+        #         # here we set mask for dropped boxes to all zero
+        #         masks = bbox_embedder_kwargs['masks']
+        #         masks[uncond_mask > 0] = 0
+        #     # original flow
+        #     b_box, n_box = bbox_embedder_kwargs["bboxes"].shape[:2]
+        #     for k in bboxes_3d_data.keys():
+        #         bbox_embedder_kwargs[k] = rearrange(
+        #             bbox_embedder_kwargs[k], 'b n ... -> (b n) ...')
+        #     bbox_emb = self.bbox_embedder(**bbox_embedder_kwargs)
+        #     if n_box != N_cam:
+        #         # n_box should be 1: all views share the same set of bboxes, we repeat
+        #         bbox_emb = repeat(bbox_emb, 'b ... -> b n ...', n=N_cam)
+        #     else:
+        #         # each view already has its set of bboxes
+        #         bbox_emb = rearrange(bbox_emb, '(b n) ... -> b n ...', n=N_cam)
+        #     encoder_hidden_states_with_cam = torch.cat([
+        #         encoder_hidden_states_with_cam, bbox_emb
+        #     ], dim=2)
 
         # 1. time
         timesteps = timestep

@@ -229,12 +229,12 @@ class MultiviewRunner(BaseRunner):
         controlnet_unet.weight_dtype = self.weight_dtype
         controlnet_unet.unet_in_fp16 = self.cfg.runner.unet_in_fp16
 
-        with torch.no_grad():
-            self.accelerator.unwrap_model(self.controlnet).prepare(
-                self.cfg,
-                tokenizer=self.tokenizer,
-                text_encoder=self.text_encoder
-            )
+        # with torch.no_grad():
+        #     self.accelerator.unwrap_model(self.controlnet).prepare(
+        #         self.cfg,
+        #         tokenizer=self.tokenizer,
+        #         text_encoder=self.text_encoder
+        #     )
 
         # We need to recalculate our total training steps as the size of the
         # training dataloader may have changed.
@@ -315,8 +315,10 @@ class MultiviewRunner(BaseRunner):
             for idx_batch in range(bsz):
                 cur_sample_idx = batch['meta_data']['metas'][idx_batch].data['token']
                 controlnet_image_list.append(torch.load(f'./train_extracted_bev_feature/{cur_sample_idx}.bin'))
-            controlnet_image = torch.stack(controlnet_image_list)
+            controlnet_image = torch.cat(controlnet_image_list)
             controlnet_image = controlnet_image.to(device=latents.device, dtype=self.weight_dtype)
+            controlnet_image = rearrange(controlnet_image, "b c v_h h w -> b (c v_h) h w")
+
 
             model_pred = self.controlnet_unet(
                 noisy_latents, timesteps, camera_param, encoder_hidden_states,

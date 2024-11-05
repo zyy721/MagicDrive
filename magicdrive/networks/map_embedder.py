@@ -88,7 +88,7 @@ class BEVControlNetConditioningEmbedding(nn.Module):
         super().__init__()
 
         self.middle_layer = nn.Conv2d(
-            256,
+            256*5,
             128,
             kernel_size=3,
             stride=1,

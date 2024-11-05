@@ -5,7 +5,7 @@ defaults:
 runner:
   # checkpointing_steps: 5000
   # validation_steps: 2500
-  checkpointing_steps: 5000
-  validation_steps: 250000
+  checkpointing_steps: 10000
+  validation_steps: 1000000
   lr_scheduler: constant_with_warmup
   enable_xformers_memory_efficient_attention: true

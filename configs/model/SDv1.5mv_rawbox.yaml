@@ -34,7 +34,9 @@ controlnet:
   # for uncond camera param, learnable
   uncond_cam_in_dim: [3, 7]
   use_uncond_map: null  # negative1, random or learnable
-  drop_cond_ratio: 0.25
+  # drop_cond_ratio: 0.25
+  drop_cond_ratio: 0.0
+
   drop_cam_num: 6
   drop_cam_with_box: false
 

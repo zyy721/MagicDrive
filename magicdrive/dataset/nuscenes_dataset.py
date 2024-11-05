@@ -82,6 +82,24 @@ class NuScenesDatasetM(NuScenesDataset):
             use_valid_flag=use_valid_flag,
         )
 
+    def __getitem__(self, idx):
+        """Get item from infos according to the given index.
+
+        Returns:
+            dict: Data dictionary of the corresponding index.
+        """
+
+        # idx = 2000
+
+        if self.test_mode:
+            return self.prepare_test_data(idx)
+        while True:
+            data = self.prepare_train_data(idx)
+            if data is None:
+                idx = self._rand_another(idx)
+                continue
+            return data
+
     def get_cat_ids(self, idx):
         """Get category distribution of single scene.
 

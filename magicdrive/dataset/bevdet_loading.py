@@ -877,25 +877,11 @@ class PrepareImageInputs(object):
         sequential=False,
         opencv_pp=False,
     ):
-        self.data_infos = self.load_annotations(open(local_path, 'rb'))
-
         self.is_train = is_train
         self.data_config = data_config
         self.normalize_img = mmlabNormalize
         self.sequential = sequential
         self.opencv_pp = opencv_pp
-
-    def load_annotations(self, ann_file):
-        """Load annotations from ann_file.
-
-        Args:
-            ann_file (str): Path of the annotation file.
-
-        Returns:
-            list[dict]: List of annotations.
-        """
-        # loading data from a file-like object needs file format
-        return mmcv.load(ann_file, file_format='pkl')
 
     def get_rot(self, h):
         return torch.Tensor([
@@ -1171,7 +1157,6 @@ class PrepareImageInputs(object):
         return (imgs, sensor2egos, ego2globals, intrins, post_rots, post_trans)
 
     def __call__(self, results):
-        
         results['img_inputs'] = self.get_inputs(results)
         return results
 

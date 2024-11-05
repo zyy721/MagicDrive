@@ -26,6 +26,8 @@ from magicdrive.runner.utils import (
 )
 from magicdrive.misc.common import load_module
 
+from einops import rearrange, repeat
+
 
 def insert_pipeline_item(cfg: DictConfig, search_type, item=None) -> None:
     if item is None:
@@ -98,7 +100,7 @@ def build_pipe(cfg, device):
     pipe_param = {}
 
 
-    cfg.resume_from_checkpoint = os.path.join(cfg.resume_from_checkpoint, 'weight-E3-S15000')
+    cfg.resume_from_checkpoint = os.path.join(cfg.resume_from_checkpoint, 'weight-E2-S10000')
 
     model_cls = load_module(cfg.model.model_module)
     controlnet_path = os.path.join(
@@ -302,11 +304,29 @@ def run_one_batch(cfg, pipe, val_input, weight_dtype, global_generator=None,
     # camera_emb = self._embed_camera(val_input["camera_param"])
     camera_param = val_input["camera_param"].to(weight_dtype)
 
+
+    # 3-dim list: B, Times, views
+    # gen_imgs_list = run_one_batch_pipe_func(
+    #     cfg, pipe, val_input['pixel_values'], val_input['captions'],
+    #     val_input['bev_map_with_aux'], camera_param, val_input['kwargs'],
+    #     global_generator=global_generator)
+
+
+    controlnet_image_list = []
+    for idx_batch in range(bs):
+        cur_sample_idx = val_input['meta_data']['metas'][idx_batch].data['token']
+        controlnet_image_list.append(torch.load(f'./train_extracted_bev_feature/{cur_sample_idx}.bin'))
+        # controlnet_image_list.append(torch.load(f'./val_extracted_bev_feature/{cur_sample_idx}.bin'))
+    controlnet_image = torch.cat(controlnet_image_list)
+    controlnet_image = rearrange(controlnet_image, "b c v_h h w -> b (c v_h) h w")
+
+
     # 3-dim list: B, Times, views
     gen_imgs_list = run_one_batch_pipe_func(
         cfg, pipe, val_input['pixel_values'], val_input['captions'],
-        val_input['bev_map_with_aux'], camera_param, val_input['kwargs'],
+        controlnet_image, camera_param, val_input['kwargs'],
         global_generator=global_generator)
+
 
     # save gen with box
     gen_imgs_wb_list = []
