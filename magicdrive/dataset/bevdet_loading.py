@@ -1157,7 +1157,8 @@ class PrepareImageInputs(object):
         return (imgs, sensor2egos, ego2globals, intrins, post_rots, post_trans)
 
     def __call__(self, results):
-        results['img_inputs'] = self.get_inputs(results)
+        # results['img_inputs'] = self.get_inputs(results)
+        results['bevdet']['img_inputs'] = self.get_inputs(results['bevdet'])
         return results
 
 

@@ -101,14 +101,14 @@ input_modality:
 #         'CAM_BACK', 'CAM_BACK_RIGHT'
 #     ]
 #     Ncams: 6
-#     input_size: (256, 704)
-#     src_size: (900, 1600)
+#     input_size: [256, 704]
+#     src_size: [900, 1600]
 
 #     # Augmentation
-#     resize: (0.0, 0.0)
-#     rot: (0.0, 0.0)
+#     resize: [0.0, 0.0]
+#     rot: [0.0, 0.0]
 #     flip: False
-#     crop_h: (0.0, 0.0)
+#     crop_h: [0.0, 0.0]
 #     resize_test: 0.00
 
 # bda_aug_conf:
