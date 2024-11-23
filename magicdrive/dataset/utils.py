@@ -349,4 +349,15 @@ def collate_fn(
             continue
     ret_dict['meta_data'] = meta_list_dict
 
+
+    ret_dict['unipad'] = {}
+    unipad_img = torch.stack(
+        [example['unipad']["img"].data for example in examples])
+    unipad_img = unipad_img.to(
+        memory_format=torch.contiguous_format).float()
+    ret_dict["unipad"]['img'] = unipad_img
+
+    ret_dict["unipad"]['img_metas'] = [example['unipad']["img_metas"].data for example in examples]
+
+
     return ret_dict

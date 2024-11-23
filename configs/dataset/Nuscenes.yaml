@@ -91,6 +91,8 @@ input_modality:
   use_map: false
   use_external: false
 
+  cam_sweep_num: 1
+
 
 
 # bevdet data config
@@ -119,6 +121,9 @@ input_modality:
 #     flip_dy_ratio=0.0)
 
 
+file_client_args:
+  backend: "disk"
+
 
 train_pipeline:
   # -
@@ -131,6 +136,22 @@ train_pipeline:
   #   bda_aug_conf: ${...bda_aug_conf}
   #   classes: ${...object_classes}
 
+
+  -
+    type: LoadMultiViewMultiSweepImageFromFiles
+    sweep_num: 1
+    to_float32: True
+    file_client_args: ${...file_client_args}
+
+  -
+    type: NormalizeMultiviewImage
+    mean: [123.675, 116.28, 103.53]
+    std: [58.395, 57.12, 57.375]
+    to_rgb: True
+
+  -
+    type: PadMultiViewImage
+    size_divisor: 32
 
 
 
@@ -295,7 +316,8 @@ data:
     type: ${...dataset_type}
     dataset_root: ${...dataset_root}
     # ann_file: ${...dataset_process_root}nuscenes_infos_train.pkl
-    ann_file: ${...dataset_process_root}magicdrive_w_bevdet_train.pkl
+    # ann_file: ${...dataset_process_root}magicdrive_w_bevdet_train.pkl
+    ann_file: ${...dataset_process_root}magicdrive_w_unipad_train.pkl
 
     pipeline: ${...train_pipeline}
     object_classes: ${...object_classes}
