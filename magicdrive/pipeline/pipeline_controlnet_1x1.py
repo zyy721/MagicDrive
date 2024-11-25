@@ -36,7 +36,7 @@ class BEVStableDiffusionPipelineOutput(BaseOutput):
     nsfw_content_detected: Optional[List[bool]]
 
 
-class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
+class StableDiffusionControlNetPipeline1x1(StableDiffusionControlNetPipeline):
     def __init__(
         self,
         vae: AutoencoderKL,
@@ -111,6 +111,7 @@ class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
         image = rearrange(image.cpu(), '... c h w -> ... h w c').float().numpy()
         return image
 
+
     def prepare_image(
         self,
         image,
@@ -123,21 +124,21 @@ class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
         do_classifier_free_guidance=False,
         guess_mode=False,
     ):
-        # image = self.control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
-        image_batch_size = image.shape[0]
+        # # image = self.control_image_processor.preprocess(image, height=height, width=width).to(dtype=torch.float32)
+        # image_batch_size = image.shape[0]
 
 
-        # image = torch.load('/home/yzhu/BEV_Diffusion/extracted_bev_feature.pth')
-        # image = image.expand([image_batch_size, -1, -1, -1])
+        # # image = torch.load('/home/yzhu/BEV_Diffusion/extracted_bev_feature.pth')
+        # # image = image.expand([image_batch_size, -1, -1, -1])
 
 
-        if image_batch_size == 1:
-            repeat_by = batch_size
-        else:
-            # image batch size is the same as prompt batch size
-            repeat_by = num_images_per_prompt
+        # if image_batch_size == 1:
+        #     repeat_by = batch_size
+        # else:
+        #     # image batch size is the same as prompt batch size
+        #     repeat_by = num_images_per_prompt
 
-        image = image.repeat_interleave(repeat_by, dim=0)
+        # image = image.repeat_interleave(repeat_by, dim=0)
 
         image = image.to(device=device, dtype=dtype)
 
@@ -406,19 +407,34 @@ class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
                 controlnet_t = controlnet_t.repeat(len(controlnet_latent_model_input))
 
                 # fmt: off
-                down_block_res_samples, mid_block_res_sample, \
-                encoder_hidden_states_with_cam = self.controlnet(
+                # down_block_res_samples, mid_block_res_sample, \
+                # encoder_hidden_states_with_cam = self.controlnet(
+                #     controlnet_latent_model_input,
+                #     controlnet_t,
+                #     camera_param,  # for BEV
+                #     encoder_hidden_states=controlnet_prompt_embeds,
+                #     controlnet_cond=image,
+                #     conditioning_scale=controlnet_conditioning_scale,
+                #     guess_mode=guess_mode,
+                #     return_dict=False,
+                #     **bev_controlnet_kwargs, # for BEV
+                # )
+                # fmt: on
+
+                controlnet_latent_model_input = rearrange(controlnet_latent_model_input, "b n c h w -> (b n) c h w")
+                controlnet_prompt_embeds = controlnet_prompt_embeds.unsqueeze(1).expand(-1, N_cam, -1, -1)
+                controlnet_prompt_embeds = rearrange(controlnet_prompt_embeds, "b n n_token d -> (b n) n_token d")
+
+                down_block_res_samples, mid_block_res_sample = self.controlnet(
                     controlnet_latent_model_input,
                     controlnet_t,
-                    camera_param,  # for BEV
                     encoder_hidden_states=controlnet_prompt_embeds,
                     controlnet_cond=image,
                     conditioning_scale=controlnet_conditioning_scale,
                     guess_mode=guess_mode,
                     return_dict=False,
-                    **bev_controlnet_kwargs, # for BEV
                 )
-                # fmt: on
+
 
                 if guess_mode and do_classifier_free_guidance:
                     # Infered ControlNet only for the conditional batch.
@@ -432,10 +448,10 @@ class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
                         [torch.zeros_like(mid_block_res_sample), mid_block_res_sample]
                     )
                     # add uncond encoder_hidden_states_with_cam here
-                    encoder_hidden_states_with_cam = self.controlnet.add_uncond_to_emb(
-                        prompt_embeds.chunk(2)[0], N_cam,
-                        encoder_hidden_states_with_cam,
-                    )
+                    # encoder_hidden_states_with_cam = self.controlnet.add_uncond_to_emb(
+                    #     prompt_embeds.chunk(2)[0], N_cam,
+                    #     encoder_hidden_states_with_cam,
+                    # )
 
                 # =============================================================
                 # Strating from here, we use 4-dim data.
@@ -447,15 +463,27 @@ class StableDiffusionBEVControlNetPipeline(StableDiffusionControlNetPipeline):
 
                 # predict the noise residual: 2bxN, 4, 28, 50
                 additional_param = {}
+                # noise_pred = self.unet(
+                #     latent_model_input,  # may with unconditional
+                #     t,
+                #     encoder_hidden_states=encoder_hidden_states_with_cam,
+                #     **additional_param,  # if use original unet, it cannot take kwargs
+                #     cross_attention_kwargs=cross_attention_kwargs,
+                #     down_block_additional_residuals=down_block_res_samples,
+                #     mid_block_additional_residual=mid_block_res_sample,
+                # ).sample
+
+
                 noise_pred = self.unet(
                     latent_model_input,  # may with unconditional
                     t,
-                    encoder_hidden_states=encoder_hidden_states_with_cam,
+                    encoder_hidden_states=controlnet_prompt_embeds,
                     **additional_param,  # if use original unet, it cannot take kwargs
                     cross_attention_kwargs=cross_attention_kwargs,
                     down_block_additional_residuals=down_block_res_samples,
                     mid_block_additional_residual=mid_block_res_sample,
                 ).sample
+
 
                 # perform guidance
                 if do_classifier_free_guidance:

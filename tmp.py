@@ -17,8 +17,10 @@ import mmcv
 #     print()
 
 def main():
-    magicdrive = mmcv.load('data/nuscenes_mmdet3d_2/nuscenes_infos_train.pkl')
-    unipad = mmcv.load('/home/yzhu/UniPAD/data/nuscenes/nuscenes_unified_infos_train.pkl')
+    # magicdrive = mmcv.load('data/nuscenes_mmdet3d_2/nuscenes_infos_train.pkl')
+    # unipad = mmcv.load('/home/yzhu/UniPAD/data/nuscenes/nuscenes_unified_infos_train.pkl')
+    magicdrive = mmcv.load('data/nuscenes_mmdet3d_2/nuscenes_infos_val.pkl')
+    unipad = mmcv.load('/home/yzhu/UniPAD/data/nuscenes/nuscenes_unified_infos_val.pkl')
 
     magicdrive_w_unipad = {}
     magicdrive_w_unipad['infos'] = magicdrive['infos']
@@ -28,7 +30,8 @@ def main():
         if cur_magicdrive_w_unipad['token'] != unipad['infos'][i]['token']:
             print('different')
 
-    mmcv.dump(magicdrive_w_unipad, 'data/nuscenes_mmdet3d_2/magicdrive_w_unipad_train.pkl')
+    # mmcv.dump(magicdrive_w_unipad, 'data/nuscenes_mmdet3d_2/magicdrive_w_unipad_train.pkl')
+    mmcv.dump(magicdrive_w_unipad, 'data/nuscenes_mmdet3d_2/magicdrive_w_unipad_val.pkl')
 
     print()
 

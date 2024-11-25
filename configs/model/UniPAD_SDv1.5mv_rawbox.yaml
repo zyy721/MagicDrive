@@ -9,7 +9,8 @@ train_with_same_t: true
 # runner_module: magicdrive.runner.multiview_runner.MultiviewRunner
 runner_module: magicdrive.runner.unipad_multiview_runner.UniPADMultiviewRunner
 
-pipe_module: magicdrive.pipeline.pipeline_bev_controlnet.StableDiffusionBEVControlNetPipeline
+# pipe_module: magicdrive.pipeline.pipeline_bev_controlnet.StableDiffusionBEVControlNetPipeline
+pipe_module: magicdrive.pipeline.pipeline_controlnet_1x1.StableDiffusionControlNetPipeline1x1
 
 unet_module: magicdrive.networks.unet_2d_condition_multiview.UNet2DConditionModelMultiview
 use_fp32_for_unet_trainable: true
@@ -60,3 +61,6 @@ unet:
 
 model_module: magicdrive.networks.controlnet1x1.ControlNetModel1x1
 controlnet_dir: syntheocc_controlnet
+
+UVTRSSL_Wrapper_module: magicdrive.runner.unipad_multiview_runner.UVTRSSL_Wrapper
+UVTRSSL_Wrapper_dir: UVTRSSL_Wrapper

@@ -119,6 +119,25 @@ dataset:
         - token
 
   test_pipeline:
+
+    -
+      type: LoadMultiViewMultiSweepImageFromFiles
+      sweep_num: 1
+      to_float32: True
+      file_client_args: ${...file_client_args}
+
+    -
+      type: NormalizeMultiviewImage
+      mean: [123.675, 116.28, 103.53]
+      std: [58.395, 57.12, 57.375]
+      to_rgb: True
+      
+
+    -
+      type: PadMultiViewImage
+      size_divisor: 32
+
+
     -
       type: LoadMultiViewImageFromFiles
       to_float32: true
