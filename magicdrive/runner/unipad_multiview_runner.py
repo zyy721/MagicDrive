@@ -126,29 +126,29 @@ class UVTRSSL_Wrapper(ModelMixin, ConfigMixin):
 
 
 
-        # # origin_occ_shape = (5, 180, 180)
-        # origin_occ_shape = (20, 180, 180)
-        # input_size = (224, 400)
-        # down_sample = 8
-        # grid_config = dict(
-        #     x_bound = [-54.0, 54.0, 0.6],
-        #     y_bound = [-54.0, 54.0, 0.6],
-        #     # z_bound = [-5.0, 3.0, 1.6],
-        #     z_bound = [-5.0, 3.0, 0.4],
-        #     d_bound = [0.5, 48.5, 1.0],
-        # )
-
         # origin_occ_shape = (5, 180, 180)
-        origin_occ_shape = (2, 18, 18)
+        origin_occ_shape = (20, 180, 180)
         input_size = (224, 400)
         down_sample = 8
         grid_config = dict(
-            x_bound = [-54.0, 54.0, 6],
-            y_bound = [-54.0, 54.0, 6],
+            x_bound = [-54.0, 54.0, 0.6],
+            y_bound = [-54.0, 54.0, 0.6],
             # z_bound = [-5.0, 3.0, 1.6],
-            z_bound = [-5.0, 3.0, 4],
+            z_bound = [-5.0, 3.0, 0.4],
             d_bound = [0.5, 48.5, 1.0],
         )
+
+        # # origin_occ_shape = (5, 180, 180)
+        # origin_occ_shape = (2, 18, 18)
+        # input_size = (224, 400)
+        # down_sample = 8
+        # grid_config = dict(
+        #     x_bound = [-54.0, 54.0, 6],
+        #     y_bound = [-54.0, 54.0, 6],
+        #     # z_bound = [-5.0, 3.0, 1.6],
+        #     z_bound = [-5.0, 3.0, 4],
+        #     d_bound = [0.5, 48.5, 1.0],
+        # )
 
         self.VT = VolumeTransform(with_DSE=True, 
                                   origin_occ_shape=origin_occ_shape, 

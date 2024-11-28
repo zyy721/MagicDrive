@@ -15,8 +15,8 @@ plugin_dir = "projects/mmdet3d_plugin/"
 # cloud range accordingly
 point_cloud_range = [-54.0, -54.0, -5.0, 54.0, 54.0, 3.0]
 # unified_voxel_size = [0.6, 0.6, 1.6]  # [180, 180, 5]
-# unified_voxel_size = [0.6, 0.6, 0.4]  # [180, 180, 5]
-unified_voxel_size = [6, 6, 4]  # [180, 180, 5]
+unified_voxel_size = [0.6, 0.6, 0.4]  # [180, 180, 5]
+# unified_voxel_size = [6, 6, 4]  # [180, 180, 5]
 
 frustum_range = [0, 0, 1.0, 1600, 928, 60.0]
 frustum_size = [32.0, 32.0, 0.5]
