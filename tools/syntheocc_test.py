@@ -31,6 +31,10 @@ from magicdrive.misc.test_utils_syntheocc import (
     prepare_all, run_one_batch
 )
 
+from PIL import Image
+import numpy as np
+
+
 transparent_bg = True
 target_map_size = 400
 # target_map_size = 800
@@ -83,6 +87,19 @@ def main(cfg: DictConfig):
         # return_tuples = run_one_batch(cfg, pipe, val_input, weight_dtype, InferUVTRSSL_cls, 
         #                               transparent_bg=transparent_bg,
         #                               map_size=target_map_size)
+
+        occ_rgb_list = []
+        occ_rgb = val_input['syntheocc']['occ_rgb']
+        for i in range(len(occ_rgb)):
+            cur_occ_rgb_list = []
+            for j in range(len(occ_rgb[i])):
+                cur_cam_occ_rgb = occ_rgb[i, j]
+                pil_image = Image.fromarray((cur_cam_occ_rgb.numpy()).astype(np.uint8))
+                cur_occ_rgb_list.append(pil_image)
+            occ_rgb_list.append(cur_occ_rgb_list)
+
+        occ_rgb_img = output_func(occ_rgb_list[0])
+        occ_rgb_img.save(os.path.join(cfg.log_root, f"{total_num}_occ_rgb.png"))
 
         for map_img, ori_imgs, ori_imgs_wb, gen_imgs_list, gen_imgs_wb_list in zip(*return_tuples):
             # save map
