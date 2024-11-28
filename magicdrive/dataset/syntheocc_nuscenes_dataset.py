@@ -66,6 +66,9 @@ class SyntheOccNuScenesDatasetM(NuScenesDataset):
         eval_version="detection_cvpr_2019",
         use_valid_flag=False,
         force_all_boxes=False,
+
+        syntheocc_val=False,
+
     ) -> None:
         self.force_all_boxes = force_all_boxes
         super().__init__(
@@ -89,10 +92,11 @@ class SyntheOccNuScenesDatasetM(NuScenesDataset):
 
         self.return_gt_info = False
 
-
-        # self.syntheocc_train_dataset = NuScenesDatasetMtvSpar(args, tokenizer, 'train')
-        self.syntheocc_train_dataset = NuScenesDatasetMtvSpar(None, None, 'train')
-
+        self.syntheocc_val = syntheocc_val
+        if self.syntheocc_val:
+            self.syntheocc_dataset = NuScenesDatasetMtvSpar(None, None, 'val')
+        else:
+            self.syntheocc_dataset = NuScenesDatasetMtvSpar(None, None, 'train')
 
 
     def __getitem__(self, idx):
@@ -228,7 +232,7 @@ class SyntheOccNuScenesDatasetM(NuScenesDataset):
 
         # data["bevdet"] = self.bevdet_get_data_info(info["bevdet"])
         data["unipad"] = self.unipad_get_data_info(info["unipad"])
-        data["syntheocc"] = self.syntheocc_train_dataset.get_data_dict(info["syntheocc"])
+        data["syntheocc"] = self.syntheocc_dataset.get_data_dict(info["syntheocc"])
 
         return data
 

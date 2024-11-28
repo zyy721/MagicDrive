@@ -363,9 +363,15 @@ def collate_fn(
     ret_dict['syntheocc'] = {}
     syntheocc_ctrl_img = torch.stack(
         [example['syntheocc']["ctrl_img"] for example in examples])
-    syntheocc_weight_mask = torch.stack(
-        [example['syntheocc']["weight_mask"] for example in examples])
     ret_dict['syntheocc']["ctrl_img"] = syntheocc_ctrl_img
-    ret_dict['syntheocc']["weight_mask"] = syntheocc_weight_mask
+
+    if is_train:
+        syntheocc_weight_mask = torch.stack(
+            [example['syntheocc']["weight_mask"] for example in examples])
+        ret_dict['syntheocc']["weight_mask"] = syntheocc_weight_mask
+    else:
+        syntheocc_occ_rgb = torch.stack(
+            [example['syntheocc']["occ_rgb"] for example in examples])
+        ret_dict['syntheocc']["occ_rgb"] = syntheocc_occ_rgb
 
     return ret_dict

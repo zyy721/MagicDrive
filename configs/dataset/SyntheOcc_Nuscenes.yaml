@@ -332,7 +332,9 @@ dataset:
       type: DefaultFormatBundle3D
       classes: ${...object_classes}
     -
-      type: Collect3D
+      # type: Collect3D
+      type: SyntheOccCollect3D
+
       keys:
         - img
         # - points
@@ -389,6 +391,9 @@ dataset:
       force_all_boxes: true  # !! even without `use_valid_flag`, objects with no lidar pts will be filtered
       box_type_3d: LiDAR
       filter_empty_gt: false  # important, prevent from filter
+
+      syntheocc_val: true
+
     test:
       type: ${...dataset_type}
       dataset_root: ${...dataset_root}

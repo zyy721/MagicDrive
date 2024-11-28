@@ -253,7 +253,8 @@ class NuScenesDatasetMtvSpar(torch.utils.data.Dataset):
                 occrgb_path = all_path[:-4] + '_occrgb.png'
                 # occrgb_path = all_path[:-4] + '_occrgb.jpg'
                 occ_rgb = read_image(occrgb_path).permute(1,2,0) # 3hw to hw3
-                occ_rgb = tf.resize(occ_rgb.permute(2,0,1), (self.args.height, self.args.width)).permute(1,2,0)
+                # occ_rgb = tf.resize(occ_rgb.permute(2,0,1), (self.args.height, self.args.width)).permute(1,2,0)
+                occ_rgb = tf.resize(occ_rgb.permute(2,0,1), (224, 400)).permute(1,2,0)
                 mtv_occ_rgb.append(occ_rgb[None]) # hw3
 
             elif self.trainorval == 'train':
