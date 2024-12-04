@@ -31,6 +31,8 @@ from mmcv import Config, DictAction
 from ..networks.cldm.volume_transform import VolumeTransform
 from diffusers.configuration_utils import register_to_config, ConfigMixin
 
+from functools import partial
+from magicdrive.dataset.reconstruct_utils import collate_fn
 
 
 class SyntheOccControlnetUnetWrapper(ModelMixin):
@@ -128,6 +130,8 @@ class UVTRSSL_Wrapper(ModelMixin, ConfigMixin):
 
         # origin_occ_shape = (5, 180, 180)
         origin_occ_shape = (20, 180, 180)
+        # origin_occ_shape = (2, 18, 18)
+
         input_size = (224, 400)
         down_sample = 8
         grid_config = dict(
@@ -135,6 +139,8 @@ class UVTRSSL_Wrapper(ModelMixin, ConfigMixin):
             y_bound = [-54.0, 54.0, 0.6],
             # z_bound = [-5.0, 3.0, 1.6],
             z_bound = [-5.0, 3.0, 0.4],
+            # z_bound = [-5.0, 3.0, 4],
+
             d_bound = [0.5, 48.5, 1.0],
         )
 
@@ -307,6 +313,38 @@ class UniPADMultiviewRunner(MultiviewRunner):
         # with open('/home/yzhu/BEV_Diffusion/train_extracted_bev_feature_5000.pickle', 'rb') as handle:
         #     self.train_extracted_bev_feature = pickle.load(handle)
 
+    def _set_dataset_loader(self):
+        # dataset
+        collate_fn_param = {
+            "tokenizer": self.tokenizer,
+            "template": self.cfg.dataset.template,
+            "bbox_mode": self.cfg.model.bbox_mode,
+            "bbox_view_shared": self.cfg.model.bbox_view_shared,
+            "bbox_drop_ratio": self.cfg.runner.bbox_drop_ratio,
+            "bbox_add_ratio": self.cfg.runner.bbox_add_ratio,
+            "bbox_add_num": self.cfg.runner.bbox_add_num,
+        }
+
+        if self.train_dataset is not None:
+            self.train_dataloader = torch.utils.data.DataLoader(
+                self.train_dataset, shuffle=True,
+                collate_fn=partial(
+                    collate_fn, is_train=True, **collate_fn_param),
+                batch_size=self.cfg.runner.train_batch_size,
+                num_workers=self.cfg.runner.num_workers, pin_memory=True,
+                prefetch_factor=self.cfg.runner.prefetch_factor,
+                persistent_workers=True,
+            )
+        if self.val_dataset is not None:
+            self.val_dataloader = torch.utils.data.DataLoader(
+                self.val_dataset, shuffle=False,
+                collate_fn=partial(
+                    collate_fn, is_train=False, **collate_fn_param),
+                batch_size=self.cfg.runner.validation_batch_size,
+                num_workers=self.cfg.runner.num_workers,
+                prefetch_factor=self.cfg.runner.prefetch_factor,
+            )
+
     def _init_fixed_models(self, cfg):
         # fmt: off
         self.tokenizer = CLIPTokenizer.from_pretrained(cfg.model.pretrained_model_name_or_path, subfolder="tokenizer")
@@ -333,6 +371,15 @@ class UniPADMultiviewRunner(MultiviewRunner):
         self.controlnet = model_cls.from_unet(unet, conditioning_channels=256)
 
         self.UVTRSSL_Wrapper = UVTRSSL_Wrapper()
+
+        # Load the checkpoint
+        UVTRSSL_checkpoint = torch.load('ckpts/180_180_20/epoch_12.pth', map_location=torch.device('cpu'))
+        # Load the state_dict from the checkpoint
+        # missing_keys, unexpected_keys = self.UVTRSSL_Wrapper.UVTRSSL.load_state_dict(UVTRSSL_checkpoint['state_dict'], strict=False)
+        self.UVTRSSL_Wrapper.UVTRSSL.load_state_dict(UVTRSSL_checkpoint['state_dict'], strict=False)
+
+        # print()
+
 
     def _set_model_trainable_state(self, train=True):
         # set trainable status
@@ -559,6 +606,7 @@ class UniPADMultiviewRunner(MultiviewRunner):
             #     **batch['kwargs'],
             # )
 
+            # with torch.no_grad():
             model_pred = self.unipad_controlnet_unet(
                 batch,
                 noisy_latents, timesteps, camera_param, encoder_hidden_states,

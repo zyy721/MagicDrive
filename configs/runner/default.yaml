@@ -4,8 +4,8 @@ bbox_add_ratio: 0
 bbox_add_num: 3
 
 num_train_epochs: 100
-# train_batch_size: 3
-train_batch_size: 1
+train_batch_size: 3
+# train_batch_size: 1
 max_train_steps: null  # if null, will be overwrite by runner
 
 num_workers: 8

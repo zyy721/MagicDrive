@@ -100,7 +100,7 @@ def build_pipe(cfg, device):
     pipe_param = {}
 
 
-    cfg.resume_from_checkpoint = os.path.join(cfg.resume_from_checkpoint, 'weight-E2-S10000')
+    cfg.resume_from_checkpoint = os.path.join(cfg.resume_from_checkpoint, 'weight-E0-S100')
 
     model_cls = load_module(cfg.model.model_module)
     controlnet_path = os.path.join(

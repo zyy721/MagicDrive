@@ -63,15 +63,15 @@ dataset:
     -
       type: ObjectNameFilterM  # this removes -1, do not really filter by names
       classes: ${...object_classes}
-    -
-      type: LoadBEVSegmentationM
-      dataset_root: ${...dataset_root}
-      xbound: ${...map_bound.x}
-      ybound: ${...map_bound.y}
-      classes: ${...map_classes}
-      object_classes: null
-      aux_data: null
-      cache_file: ${...dataset_cache_file.0}
+    # -
+    #   type: LoadBEVSegmentationM
+    #   dataset_root: ${...dataset_root}
+    #   xbound: ${...map_bound.x}
+    #   ybound: ${...map_bound.y}
+    #   classes: ${...map_classes}
+    #   object_classes: null
+    #   aux_data: null
+    #   cache_file: ${...dataset_cache_file.0}
     - 
       type: RandomFlip3DwithViews
       flip_ratio: ${...augment3d.flip_ratio}
@@ -102,7 +102,7 @@ dataset:
         # - points
         - gt_bboxes_3d
         - gt_labels_3d
-        - gt_masks_bev
+        # - gt_masks_bev
       meta_keys:  # send to DataContainer
         - camera_intrinsics
         - lidar2ego
@@ -163,15 +163,15 @@ dataset:
     -
       type: ObjectNameFilterM
       classes: ${...object_classes}
-    -
-      type: LoadBEVSegmentationM
-      dataset_root: ${...dataset_root}
-      xbound: ${...map_bound.x}
-      ybound: ${...map_bound.y}
-      classes: ${...map_classes}
-      object_classes: null
-      aux_data: null
-      cache_file: ${...dataset_cache_file.1}
+    # -
+    #   type: LoadBEVSegmentationM
+    #   dataset_root: ${...dataset_root}
+    #   xbound: ${...map_bound.x}
+    #   ybound: ${...map_bound.y}
+    #   classes: ${...map_classes}
+    #   object_classes: null
+    #   aux_data: null
+    #   cache_file: ${...dataset_cache_file.1}
     # -
     #   type: PointsRangeFilter
     #   point_cloud_range: ${point_cloud_range}
@@ -193,7 +193,7 @@ dataset:
         # - points
         - gt_bboxes_3d
         - gt_labels_3d
-        - gt_masks_bev
+        # - gt_masks_bev
       meta_keys:
         - camera_intrinsics
         - lidar2ego

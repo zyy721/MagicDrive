@@ -16,7 +16,10 @@ from diffusers import UniPCMultistepScheduler
 import accelerate
 from accelerate.utils import set_seed
 
-from magicdrive.dataset import collate_fn, ListSetWrapper, FolderSetWrapper
+# from magicdrive.dataset import collate_fn, ListSetWrapper, FolderSetWrapper
+from magicdrive.dataset import ListSetWrapper, FolderSetWrapper
+from magicdrive.dataset.reconstruct_utils import collate_fn
+
 from magicdrive.pipeline.pipeline_bev_controlnet import (
     StableDiffusionBEVControlNetPipeline,
     BEVStableDiffusionPipelineOutput,
