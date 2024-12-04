@@ -303,6 +303,11 @@ class StableDiffusionControlNetPipeline1x1(StableDiffusionControlNetPipeline):
         # if isinstance(self.controlnet, MultiControlNetModel) and isinstance(controlnet_conditioning_scale, float):
         #     controlnet_conditioning_scale = [controlnet_conditioning_scale] * len(self.controlnet.nets)
 
+
+        guess_mode = True
+
+
+
         # 3. Encode input prompt
         # NOTE: here they use padding to 77, is this necessary?
         prompt_embeds = self._encode_prompt(
@@ -473,6 +478,8 @@ class StableDiffusionControlNetPipeline1x1(StableDiffusionControlNetPipeline):
                 #     mid_block_additional_residual=mid_block_res_sample,
                 # ).sample
 
+                controlnet_prompt_embeds = prompt_embeds.unsqueeze(1).expand(-1, N_cam, -1, -1)
+                controlnet_prompt_embeds = rearrange(controlnet_prompt_embeds, "b n n_token d -> (b n) n_token d")
 
                 noise_pred = self.unet(
                     latent_model_input,  # may with unconditional

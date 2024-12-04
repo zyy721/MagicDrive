@@ -288,7 +288,7 @@ class UniPADControlnetUnetWrapper(ModelMixin):
                 **kwargs):
 
         # with torch.no_grad():
-        controlnet_image = self.UVTRSSL_Wrapper(batch)
+        controlnet_image = self.UVTRSSL_Wrapper(batch=batch)
 
         model_pred = self.controlnet_unet(
             noisy_latents, timesteps, camera_param, encoder_hidden_states,
